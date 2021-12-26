@@ -28,8 +28,20 @@
         <a href="#augmero-janchor-resources">Resources</a>
     </h1>
 
-    <h1>augmero's physics workflow - Ziva Dynamics for Blender</h1>
+    <!-- <h1>augmero's physics workflow - Ziva Dynamics for Blender</h1> -->
 
+
+
+    <h2>DISCLAIMER:</h2>
+    <p>This is an experimental workflow. I am not an expert and I don't necessarily recommend anybody actually do this.</p>
+    <p>If you are new to Blender or 3D this post is probably not for you, but bookmark it for later if you're interested</p>
+    <p>However, if you are looking beyond Blender native physics I hope some of these notes will be useful! </p>
+    <p>If you're curious what kind of results I'm getting I post here and on <a href="https://twitter.com/augmero_nsfw" target="_blank">Twitter</a></p>
+    <p>Lastly, if you have ideas / improvements let me know! I'll keep this post updated</p>
+
+    <p>
+        <hr>
+    </p><br>
     <h2>TOOLS:</h2>
     <ol>
         <li>Blender</li>
@@ -37,14 +49,23 @@
         <li>autoremesher (linked in step 2)</li>
     </ol>
 
-    <h2>DISCLAIMER:</h2>
-    <p>This is an experimental workflow. I am not an expert and I don't necessarily recommend anybody actually do this.
-    </p>
-    <p>However, if you are looking beyond Blender native physics I hope some of these notes will be useful! </p>
-    <p>I won't be covering Ziva Dynamics super in-depth in this, just some tips and things specific to my workflow.
-        Here's a link to the tutorial I learned a lot from: <a href="https://www.youtube.com/watch?v=QA6C9xzf4f8" target="_blank">https://www.youtube.com/watch?v=QA6C9xzf4f8</a></p>
-    <p>Lastly, if you have ideas / improvements let me know and I can update this post for everyone!</p>
-
+    <p>
+        <hr>
+    </p><br>
+    <h2>What is Ziva Dynamics?</h2>
+    <ul>
+        <li>
+            Ziva Dynamics is a plugin for Maya that specializes in character physics simulation and deformations.
+        </li>
+        <li>
+            Magic
+        </li>
+        <li>
+            Check out this lion: <a href="https://www.youtube.com/watch?v=vsTP6Ldm7Yo">https://www.youtube.com/watch?v=vsTP6Ldm7Yo</a>
+        </li>
+        <li>For something more relevant to this post (and website) you can take a look at my recent <a href="https://twitter.com/augmero_nsfw" target="_blank">animations</a></li>
+        <li>I first found out about this software when I saw tweets from <a href="https://twitter.com/m_tsqn" target="_blank">m.tsqn</a>, definitely check out what they've made as well</li>
+    </ul>
 
     <p>
         <hr>
@@ -52,12 +73,13 @@
     <h2>Why not just use Maya?</h2>
     <ul>
         <li>
-            Most of my experience and workflows (modeling, sculpting, rendering, materials, etc) is in Blender/Cycles, re-learning all of that stuff for Maya is a lot
-        </li>
-        <li>
             Many models and shared resources online have armatures and python scripts for Blender with no Maya version, it's not easy to port things to Maya
         </li>
+        <li>
+            Most of my experience and workflows (modeling, sculpting, rendering, materials, etc) is in Blender/Cycles, re-learning all of that stuff for Maya is a lot
+        </li>
     </ul>
+
 
     <a class="augmero-anchor" id="augmero-janchor-overview"></a>
     <p>
@@ -65,10 +87,14 @@
     </p><br>
     <h2>Overview</h2>
 
-    <p>Generally, this follows the same kind of workflow as mesh deform binding cages with blender native physics, just instead of blender cloth or soft body we're outsourcing this work to the Ziva Dynamics plugin in Maya.</p>
+    <p>Generally, this follows the Mesh Deform bind to cage workflow that's common with blender native physics, just instead of blender cloth or soft body we're outsourcing this work to the Ziva Dynamics plugin in Maya.</p>
     <p>If you're not familiar, here's a good tutorial from <a href="https://twitter.com/rikolo3d" target="_blank">Rikolo3D</a> that describes the Blender native version: <a href="https://www.newgrounds.com/portal/view/807659" target="_blank">https://www.newgrounds.com/portal/view/807659</a> </p>
+    <p>
+        Before I go any further I also want to link this elephant tutorial for Ziva which is super helpful
+        <a href="https://www.youtube.com/watch?v=QA6C9xzf4f8" target="_blank">https://www.youtube.com/watch?v=QA6C9xzf4f8</a>
+    </p>
 
-    <p>These are the general steps:</p>
+    <p>These are the general steps for my workflow:</p>
     <ol>
         <li>Make an animation with any model in Blender</li>
         <li>Make physics cage(s), export to Maya</li>
@@ -76,18 +102,23 @@
         <li>Export Ziva physics sim, import to blender</li>
         <li>Mesh deform your original model</li>
     </ol>
-    <p>Now it's time to get into some details, tips and tricks</p>
+    <p>Now it's time to get into the details</p>
     <a class="augmero-anchor" id="augmero-janchor-step1"></a>
     <p>
         <hr>
     </p><br>
 
-    <h2>Step 1 - before exporting things for Maya</h2>
+    <h2>Step 1 - General set-up</h2>
     <ul>
         <li>Set up character model with the most general desired shape (likely default pose, shape keys set up for body proportions</li>
         <ul>
-            <li>You will be able to make adjustments (and animate adjustments) in ziva as well but a good base gets
+            <li>You will be able to make adjustments (and animate adjustments) in Ziva as well but a good base gets
                 better results</li>
+        </ul>
+        <li>Any simple animation is fine starting out, even an existing animation you want to add physics to</li>
+        <li>This will be important later, pick a frame where the physics simulation is going to start (I use frame 3) and make sure that your armature stays the same way at that frame.</li>
+        <ul>
+            <li>I recommend setting keyframes of the rest pose for the most consistency and ease of use.</li>
         </ul>
         <li>General project layout</li>
         <ul>
@@ -96,10 +127,12 @@
         <li>Make vertex group for separating the armature vs mesh deform</li>
         <ul>
             <li>This will be tweaked later on the render mesh after binding</li>
-            <li>Since this is a mesh deform flow, I recommend not including more complex parts of the geometry in the physics</li>
-            <li>Generally, this includes the head, hands, feet, gens.</li>
-            <li>I include hands as a bone, not part of the tissue cage</li>
-            <li>We will use this later for the first two modifiers on the render mesh like this:</li>
+            <li>Since this is a mesh deform flow, I recommend excluding more complex parts of the geometry in the physics</li>
+            <ul>
+                <li>Generally, this includes the head, hands, feet, gens.</li>
+                <li>I include hands as a bone, not part of the tissue cage</li>
+            </ul>
+            <li>We will use this vertex group later for the first two modifiers on the render mesh like this:</li>
             <li><img src="https://i.imgur.com/lft8fgy.png" alt="First two modifiers screenshot"></li>
         </ul>
     </ul>
@@ -109,8 +142,8 @@
         <hr>
     </p><br>
     <h2>Step 2 - building the exports for Maya, and then exporting them</h2>
-    <p>There are many ways to prepare your tissues and bones for ziva, if you've got a better way let me know!</p>
-    <p>Ziva is picky about what it lets you use as a tissue or bone. If you run into issues here's some documentation on what Ziva is looking for <a href="https://docs.zivadynamics.com/vfx/mel_commands/zMeshCheck.html" target="_blank">zMeshCheck</a>
+    <p>There are many ways to prepare your tissues and bones for Ziva, if you've got a better way let me know!</p>
+    <p>Ziva is picky about what it lets you use as a tissue or bone. If you run into issues here's some documentation on what Ziva is looking for <a href="https://docs.Zivadynamics.com/vfx/mel_commands/zMeshCheck.html" target="_blank">zMeshCheck</a>
     </p>
     <h3>zBone example: hands</h3>
     <p>Hands don't work too well with mesh deform so I leave them to my model's armature and use them in Ziva as a zBone for some nice collisions</p>
@@ -122,7 +155,8 @@
         </ul>
         <li>Add a remesh modifier</li>
         <ul>
-            <li>This can be fairly detailed, we're fixing the topology afterwards anyways</li>
+            <li>This can be fairly high vertex count, we're fixing the topology afterwards anyways</li>
+            <li><img src="https://i.imgur.com/bsAiMO0.png" alt="blender remesh screenshot"></li>
         </ul>
         <li>Now it's time to retopologize. My favorite tools for automatic topology / remeshing are
             <a href="https://github.com/huxingyi/autoremesher/releases" target="_blank">huxingyi/autoremesher</a> and <a href="https://github.com/wjakob/instant-meshes" target="_blank">wjakob/instant-meshes</a>,
@@ -306,20 +340,20 @@
     <h2>ADDITIONAL LINKS AND RESOURCES</h2>
     <p>Ziva first party documentation</p>
     <ul>
-        <li><a href="https://zivadynamics.com/resources/fat-skin-workflow" target="_blank">Fat and Skin workflow</a>
+        <li><a href="https://Zivadynamics.com/resources/fat-skin-workflow" target="_blank">Fat and Skin workflow</a>
         </li>
-        <li><a href="https://docs.zivadynamics.com/vfx/nodes/zTissue.html?highlight=keyable" target="_blank">keyable (animate-able) properties of ziva tissue</a></li>
-        <li><a href="https://docs.zivadynamics.com/vfx/nodes/zMaterial.html#sec-zmaterial" target="_blank">https://docs.zivadynamics.com/vfx/nodes/zMaterial.html#sec-zmaterial</a>
+        <li><a href="https://docs.Zivadynamics.com/vfx/nodes/zTissue.html?highlight=keyable" target="_blank">keyable (animate-able) properties of Ziva tissue</a></li>
+        <li><a href="https://docs.Zivadynamics.com/vfx/nodes/zMaterial.html#sec-zmaterial" target="_blank">https://docs.Zivadynamics.com/vfx/nodes/zMaterial.html#sec-zmaterial</a>
         </li>
-        <li><a href="https://docs.zivadynamics.com/vfx/mel_commands/zMeshCheck.html" target="_blank">zMeshCheck - info on commands for checking a mesh for problems</a></li>
+        <li><a href="https://docs.Zivadynamics.com/vfx/mel_commands/zMeshCheck.html" target="_blank">zMeshCheck - info on commands for checking a mesh for problems</a></li>
         <!-- <li><a href=""></a></li> -->
     </ul>
 
-    <p>If you're curious, the ziva rabbit hole goes much further than the 'simple' simulations I've been doing. Here's some crazy forum posts I was looking at</p>
+    <p>If you're curious, the Ziva rabbit hole goes much further than the 'simple' simulations I've been doing. Here's some crazy forum posts I was looking at</p>
     <ul>
-        <li><a href="https://community.zivadynamics.com/d/832-female-ectomorph-wip/73" target="_blank">female ectomorph wip (wow)</a>
+        <li><a href="https://community.Zivadynamics.com/d/832-female-ectomorph-wip/73" target="_blank">female ectomorph wip (wow)</a>
         </li>
-        <li><a href="https://community.zivadynamics.com/d/81-making-of-female-with-ziva/35" target="_blank">making of female with ziva</a></li>
+        <li><a href="https://community.Zivadynamics.com/d/81-making-of-female-with-Ziva/35" target="_blank">making of female with Ziva</a></li>
     </ul>
 
 
